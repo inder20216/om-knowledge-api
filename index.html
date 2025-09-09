@@ -115,6 +115,39 @@
     </div>
 
     <script>
+        // API Detection - Check for query parameter first
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        
+        if (query) {
+            // This is an API call - return only JSON
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.innerHTML = '<pre style="font-family: monospace; padding: 20px; margin: 0; background: #f5f5f5;"></pre>';
+                
+                const searchResult = performAPISearch(query);
+                document.body.children[0].textContent = JSON.stringify(searchResult, null, 2);
+            });
+        }
+        
+        function performAPISearch(searchQuery) {
+            const q = searchQuery.toLowerCase().trim();
+            
+            // Search through the knowledge base
+            for (const faq of knowledgeBase.faqs) {
+                const question = faq.question.toLowerCase();
+                const answer = faq.answer.toLowerCase();
+                
+                if (question.includes(q) || answer.includes(q)) {
+                    return { answer: faq.answer };
+                }
+            }
+            
+            // Fallback response
+            return { 
+                answer: "Open Mind Services Limited is a BPO company founded in 2007 by Mr. Naveen Gulati (CEO) and Ms. Rakhi Gulati (COO). Contact: connect@openmind.in or +91 9811331600 for more information." 
+            };
+        }
+
         // Knowledge Base - ADD YOUR 127 FAQs HERE
         const knowledgeBase = {
             faqs: [
