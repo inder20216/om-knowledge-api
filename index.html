@@ -669,89 +669,53 @@
 
         // Search function
         function smartSearch(query) {
-            function smartSearch(query) {
-    query = query.toLowerCase().trim();
-    
-    const faqMatches = [];
-    for (const faq of knowledgeBase.faqs) {
-        const question = faq.question.toLowerCase();
-        const answer = faq.answer.toLowerCase();
-        
-        let score = 0;
-        
-        // Extract key terms from query (remove common words)
-        const stopWords = ['what', 'how', 'do', 'you', 'does', 'are', 'the', 'and', 'or', 'for', 'with', 'your', 'our', 'we', 'they', 'that', 'this', 'from', 'to', 'in', 'on', 'at', 'by'];
-        const queryWords = query.split(/[\s,?.!]+/)
-            .filter(word => word.length > 2 && !stopWords.includes(word));
-        
-        // Exact question match (highest priority)
-        if (question === query || question.includes(query.substring(0, 30))) {
-            score += 50;
-        }
-        
-        // High-value keyword matching
-        let keywordMatches = 0;
-        for (const word of queryWords) {
-            if (question.includes(word)) {
-                keywordMatches++;
-                score += 5;
+            query = query.toLowerCase().trim();
+            
+            const faqMatches = [];
+            for (const faq of knowledgeBase.faqs) {
+                const question = faq.question.toLowerCase();
+                const answer = faq.answer.toLowerCase();
+                
+                let score = 0;
+                const queryWords = query.split(' ').filter(word => word.length > 2);
+                
+                if (question.includes(query) || answer.includes(query)) {
+                    score += 10;
+                }
+                
+                for (const word of queryWords) {
+                    if (question.includes(word)) score += 3;
+                    if (answer.includes(word)) score += 2;
+                }
+                
+                const specialKeywords = {
+                    'founder': ['naveen', 'gulati', 'ceo', 'owner'],
+                    'services': ['services', 'offer', 'provide'],
+                    'testimonials': ['testimonials', 'client', 'success'],
+                    'international': ['international', 'global'],
+                    'pricing': ['pricing', 'cost', 'rates']
+                };
+                
+                for (const [key, keywords] of Object.entries(specialKeywords)) {
+                    if (query.includes(key)) {
+                        for (const keyword of keywords) {
+                            if (question.includes(keyword) || answer.includes(keyword)) {
+                                score += 5;
+                            }
+                        }
+                    }
+                }
+                
+                if (score > 0) {
+                    faqMatches.push({ ...faq, score });
+                }
             }
-            if (answer.includes(word)) {
-                keywordMatches++;
-                score += 3;
-            }
-        }
-        
-        // Bonus for multiple keyword matches (indicates relevance)
-        if (keywordMatches >= 3) score += 10;
-        if (keywordMatches >= 5) score += 15;
-        
-        // Phrase matching for technical terms
-        const technicalPhrases = [
-            'call center', 'healthcare', 'lead generation', 'data migration', 
-            'disaster recovery', 'business continuity', 'roi measurement',
-            'cultural sensitivity', 'intellectual property', 'service delivery',
-            'digital transformation', 'system integration', 'kpis', 'metrics',
-            'certifications', 'accreditations', 'sustainability practices'
-        ];
-        
-        for (const phrase of technicalPhrases) {
-            if (query.includes(phrase) && (question.includes(phrase) || answer.includes(phrase))) {
-                score += 15;
-            }
-        }
-        
-        // Semantic groupings for related concepts
-        const conceptGroups = {
-            'metrics': ['kpis', 'performance', 'measurement', 'tracking', 'analytics'],
-            'integration': ['seamless', 'system', 'workflow', 'compatibility', 'connection'],
-            'quality': ['service quality', 'consistency', 'standards', 'excellence'],
-            'security': ['intellectual property', 'confidentiality', 'protection', 'privacy'],
-            'healthcare': ['medical', 'patient', 'hospital', 'clinical', 'apollo'],
-            'technology': ['digital transformation', 'automation', 'systems', 'platforms']
-        };
-        
-        for (const [concept, terms] of Object.entries(conceptGroups)) {
-            const queryHasConcept = terms.some(term => query.includes(term));
-            const faqHasConcept = terms.some(term => question.includes(term) || answer.includes(term));
-            if (queryHasConcept && faqHasConcept) {
-                score += 8;
-            }
-        }
-        
-        if (score > 0) {
-            faqMatches.push({ ...faq, score });
-        }
-    }
 
-    faqMatches.sort((a, b) => b.score - a.score);
-    
-    if (faqMatches.length > 0 && faqMatches[0].score >= 10) {
-        return { answer: faqMatches[0].answer };
-    }
-
+            faqMatches.sort((a, b) => b.score - a.score);
+            
+           if (faqMatches.length > 0) {
     return {
-        answer: "I don't have specific information about that topic. Please contact our team at connect@openmind.in or +91 9811331600 for detailed assistance with your specific requirements."
+        answer: faqMatches[0].answer
     };
 }
 
