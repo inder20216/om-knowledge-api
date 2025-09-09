@@ -119,15 +119,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('q');
         
-        if (query) {
-            // This is an API call - return only JSON
-            document.addEventListener('DOMContentLoaded', function() {
-                document.body.innerHTML = '<pre style="font-family: monospace; padding: 20px; margin: 0; background: #f5f5f5;"></pre>';
-                
-                const searchResult = performAPISearch(query);
-                document.body.children[0].textContent = JSON.stringify(searchResult, null, 2);
-            });
-        }
+       if (query) {
+    // This is an API call - use the same search function as the search box
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.innerHTML = '<pre style="font-family: monospace; padding: 20px; margin: 0; background: #f5f5f5;"></pre>';
+        
+        // Use the exact same function as the search box
+        const searchResult = smartSearch(query);
+        document.body.children[0].textContent = JSON.stringify(searchResult, null, 2);
+    });
+}
         
         function performAPISearch(searchQuery) {
             const q = searchQuery.toLowerCase().trim();
