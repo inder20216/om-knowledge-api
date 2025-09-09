@@ -680,21 +680,15 @@
 
             faqMatches.sort((a, b) => b.score - a.score);
             
-            if (faqMatches.length > 0) {
-                return {
-                    answer: faqMatches[0].answer,
-                    question: faqMatches[0].question,
-                    source: "FAQ",
-                    total_faqs: knowledgeBase.faqs.length
-                };
-            }
+           if (faqMatches.length > 0) {
+    return {
+        answer: faqMatches[0].answer
+    };
+}
 
-            return {
-                company: "Open Mind Services Limited - BPO company founded in 2007",
-                founder: "Mr. Naveen Gulati (CEO) and Ms. Rakhi Gulati (COO)",
-                contact: "connect@openmind.in | +91 9811331600",
-                note: "No specific FAQ matched. Try different keywords."
-            };
+return {
+    answer: "Open Mind Services Limited is a BPO company founded in 2007 by Mr. Naveen Gulati (CEO) and Ms. Rakhi Gulati (COO). Contact: connect@openmind.in or +91 9811331600 for more information."
+};
         }
 
         // Handle API requests
