@@ -691,17 +691,27 @@ return {
 };
         }
 
-        // Handle API requests
-        function handleApiRequest() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const query = urlParams.get('q');
-            
-            if (query) {
-                const result = smartSearch(query);
-                document.body.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
-                return;
-            }
-        }
+       // Handle API requests via URL parameters
+function handleApiRequest() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    
+    if (query) {
+        // Return API response as JSON
+        const result = smartSearch(query);
+        
+        // Clear the page and show only JSON
+        document.body.innerHTML = '';
+        document.body.style.fontFamily = 'monospace';
+        document.body.style.whiteSpace = 'pre-wrap';
+        document.body.style.padding = '20px';
+        document.body.textContent = JSON.stringify(result, null, 2);
+        
+        // Set content type
+        document.contentType = 'application/json';
+        return;
+    }
+}
 
         // Test functions
         function searchKnowledge() {
@@ -730,8 +740,8 @@ return {
         });
 
         window.onload = function() {
-            handleApiRequest();
-        };
+    handleApiRequest();
+};
     </script>
 </body>
 </html>
