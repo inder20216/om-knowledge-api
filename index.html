@@ -1,37 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Open Mind Services Knowledge Base</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-        }
-        .test-mode {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .test-query {
-            margin: 10px 0;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 5px;
-        }
-        .example-link {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .example-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <script>
-        // Complete Open Mind Services Knowledge Base - 127 Questions
-        const faqs = [
+const httpRequestResult = $input.all().map((item) => item.json)[0];
+const query = ($node.Start.json.query || '').toLowerCase().trim();
+
+// Complete FAQ database (extracted from your HTML)
+const faqs = [
             {q: "What is Open Mind Services Limited?", a: "Open Mind Services Limited is a leading business process outsourcing (BPO) and Knowledge Process Outsourcing (KPO) company founded in 2007 that specializes in customer support, healthcare process management, AI-driven solutions, and corporate training services. We help organizations across various industries streamline their operations, improve efficiency, and enhance customer satisfaction through our comprehensive outsourcing services.", k: "company overview services bpo kpo founded 2007"},
             {q: "When was Open Mind Services Limited established and who are the owners?", a: "Open Mind Services Limited is a privately held company founded in 2007, originally known as Silver Lining. The company is owned by Mr. Naveen Gulati (Founder & CEO) and Ms. Rakhi Gulati (COO and Director), who lead the organization with their combined expertise in business operations and strategic management.", k: "established owners founder naveen rakhi gulati 2007 silver lining"},
             {q: "Who is Mr. Naveen Gulati and what are his achievements?", a: "Mr. Naveen Gulati is the Founder and CEO of Open Mind Services Limited. He leads the company with a vision for innovation and growth in the outsourcing industry. His leadership has been instrumental in establishing Open Mind as a trusted name in customer support and helpdesk solutions. He has been recognized as one of the Most Talented Leaders in the Outsourcing Industry by Asia Outsourcing Congress.", k: "naveen gulati founder ceo achievements leader outsourcing"},
@@ -161,170 +132,77 @@
             {q: "What final commitment does Open Mind Services Limited make to prospective clients?", a: "Open Mind Services Limited commits to delivering exceptional service quality, measurable business results, transparent communication, continuous improvement, long-term partnership, competitive value, reliable support, and dedicated expertise ensuring client success and satisfaction in all engagements.", k: "final commitment prospective clients exceptional service quality measurable business results transparent communication continuous improvement long-term partnership competitive value reliable support dedicated expertise client success satisfaction"}
         ];
 
-        // Multilingual keyword mapping for better search
-        const multilingualKeywords = {
-            // English to Hindi mappings
-            'healthcare': ['healthcare', 'स्वास्थ्य', 'medical', 'चिकित्सा', 'hospital', 'अस्पताल'],
-            'services': ['services', 'सेवाएं', 'service', 'सेवा'],
-            'contact': ['contact', 'संपर्क', 'phone', 'फोन', 'email', 'ईमेल'],
-            'training': ['training', 'प्रशिक्षण', 'education', 'शिक्षा'],
-            'support': ['support', 'सहायता', 'help', 'मदद'],
-            'management': ['management', 'प्रबंधन', 'manage', 'प्रबंधित'],
-            'customer': ['customer', 'ग्राहक', 'client', 'क्लाइंट'],
-            'quality': ['quality', 'गुणवत्ता', 'excellence', 'उत्कृष्टता'],
-            'technology': ['technology', 'प्रौद्योगिकी', 'tech', 'टेक', 'ai', 'एआई'],
-            'data': ['data', 'डेटा', 'information', 'जानकारी'],
-            'security': ['security', 'सुरक्षा', 'privacy', 'गोपनीयता'],
-            'compliance': ['compliance', 'अनुपालन', 'regulation', 'नियमन']
-        };
-
-        // Get query from URL
-        const params = new URLSearchParams(window.location.search);
-        const query = (params.get('q') || '').toLowerCase().trim();
-
-        // Enhanced fuzzy search function
-        function fuzzySearch(searchQuery) {
-            if (!searchQuery) return "Please provide a search query. You can ask about: healthcare, services, contact, training, support, management, technology, data security, compliance, or any specific business process outsourcing topic.";
-            
-            const results = [];
-            const searchTerms = searchQuery.split(' ').filter(term => term.length > 1);
-            
-            // Expand search terms with multilingual keywords
-            const expandedTerms = [];
-            searchTerms.forEach(term => {
-                expandedTerms.push(term);
-                Object.entries(multilingualKeywords).forEach(([key, values]) => {
-                    if (values.some(v => v.includes(term) || term.includes(v))) {
-                        expandedTerms.push(...values);
-                    }
-                });
-            });
-            
-            faqs.forEach((faq, index) => {
-                let score = 0;
-                const searchText = `${faq.q} ${faq.a} ${faq.k}`.toLowerCase();
-                
-                // Check for exact matches first (highest score)
-                expandedTerms.forEach(term => {
-                    const termRegex = new RegExp(`\\b${term}\\b`, 'gi');
-                    const matches = searchText.match(termRegex) || [];
-                    score += matches.length * 10;
-                });
-                
-                // Check for partial matches (medium score)
-                expandedTerms.forEach(term => {
-                    if (term.length > 2 && searchText.includes(term)) {
-                        score += 5;
-                    }
-                });
-                
-                // Boost score for question matches
-                if (faq.q.toLowerCase().includes(searchQuery)) {
-                    score += 20;
-                }
-                
-                // Boost score for keyword matches
-                expandedTerms.forEach(term => {
-                    if (faq.k && faq.k.toLowerCase().includes(term)) {
-                        score += 8;
-                    }
-                });
-                
-                if (score > 0) {
-                    results.push({ ...faq, score, index });
-                }
-            });
-            
-            // Sort by score (highest first) and return top matches
-            results.sort((a, b) => b.score - a.score);
-            
-            if (results.length === 0) {
-                return `No specific matches found for "${searchQuery}". For detailed information about Open Mind Services Limited, please contact us at connect@openmind.in or +91 9811331600. We provide comprehensive BPO services including customer support, healthcare management, lead generation, training, and more.`;
+        // Enhanced search function
+function searchFAQs(searchQuery) {
+    if (!searchQuery) return "Please provide a search query.";
+    
+    const results = [];
+    const searchTerms = searchQuery.split(' ').filter(term => term.length > 1);
+    
+    faqs.forEach((faq, index) => {
+        let score = 0;
+        const searchText = `${faq.q} ${faq.a} ${faq.k}`.toLowerCase();
+        
+        // Check for exact matches (highest score)
+        searchTerms.forEach(term => {
+            const termRegex = new RegExp(`\\b${term}\\b`, 'gi');
+            const matches = searchText.match(termRegex) || [];
+            score += matches.length * 10;
+        });
+        
+        // Check for partial matches
+        searchTerms.forEach(term => {
+            if (term.length > 2 && searchText.includes(term)) {
+                score += 5;
             }
-            
-            // Return top 3 most relevant answers
-            const topResults = results.slice(0, 3);
-            let response = '';
-            
-            topResults.forEach((result, idx) => {
-                response += `${idx + 1}. Q: ${result.q}\nA: ${result.a}\n\n`;
-            });
-            
-            // Add contact info at the end
-            response += `For more information, contact Open Mind Services Limited at connect@openmind.in or +91 9811331600.`;
-            
-            return response;
+        });
+        
+        // Boost score for question matches
+        if (faq.q.toLowerCase().includes(searchQuery)) {
+            score += 20;
         }
+        
+        // Boost score for keyword matches
+        searchTerms.forEach(term => {
+            if (faq.k && faq.k.toLowerCase().includes(term)) {
+                score += 8;
+            }
+        });
+        
+        if (score > 0) {
+            results.push({ ...faq, score, index });
+        }
+    });
+    
+    // Sort by score and return all relevant matches
+    results.sort((a, b) => b.score - a.score);
+    
+    if (results.length === 0) {
+        return `No matches found for "${searchQuery}". Contact Open Mind Services at connect@openmind.in or +91 9811331600.`;
+    }
+    
+    // Format all relevant results
+    let response = `Found ${results.length} relevant matches for "${searchQuery}":\n\n`;
+    
+    results.forEach((result, idx) => {
+        response += `${idx + 1}. Q: ${result.q}\n`;
+        response += `   A: ${result.a}\n`;
+        response += `   Relevance Score: ${result.score}\n\n`;
+    });
+    
+    response += `For more information, contact Open Mind Services Limited at connect@openmind.in or +91 9811331600.`;
+    
+    return response;
+}
 
-        // Return result based on mode
-        if (query) {
-            // API mode - return search results as plain text
-            document.body.innerHTML = `<pre style="white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.6;">${fuzzySearch(query)}</pre>`;
-        } else {
-            // Test/Demo mode - show interface
-            document.body.innerHTML = `
-                <div class="test-mode">
-                    <h1>Open Mind Services Knowledge Base API</h1>
-                    <p><strong>Total FAQs:</strong> 127 questions covering all aspects of Open Mind Services Limited</p>
-                    
-                    <h2>How to Use:</h2>
-                    <p>Add <code>?q=your_search_term</code> to the URL to get relevant answers.</p>
-                    
-                    <h2>Supported Languages:</h2>
-                    <p>English, Hindi, and mixed language queries are supported.</p>
-                    
-                    <h2>Test Queries:</h2>
-                    <div class="test-query">
-                        <strong>Healthcare:</strong> <a href="?q=healthcare" class="example-link">?q=healthcare</a> | 
-                        <a href="?q=स्वास्थ्य" class="example-link">?q=स्वास्थ्य</a> | 
-                        <a href="?q=medical services" class="example-link">?q=medical services</a>
-                    </div>
-                    
-                    <div class="test-query">
-                        <strong>Services:</strong> <a href="?q=services" class="example-link">?q=services</a> | 
-                        <a href="?q=call center" class="example-link">?q=call center</a> | 
-                        <a href="?q=customer support" class="example-link">?q=customer support</a>
-                    </div>
-                    
-                    <div class="test-query">
-                        <strong>Contact:</strong> <a href="?q=contact" class="example-link">?q=contact</a> | 
-                        <a href="?q=phone number" class="example-link">?q=phone number</a> | 
-                        <a href="?q=address" class="example-link">?q=address</a>
-                    </div>
-                    
-                    <div class="test-query">
-                        <strong>Training:</strong> <a href="?q=training" class="example-link">?q=training</a> | 
-                        <a href="?q=A New You" class="example-link">?q=A New You</a> | 
-                        <a href="?q=corporate training" class="example-link">?q=corporate training</a>
-                    </div>
-                    
-                    <div class="test-query">
-                        <strong>Technology:</strong> <a href="?q=chatbot" class="example-link">?q=chatbot</a> | 
-                        <a href="?q=AI" class="example-link">?q=AI</a> | 
-                        <a href="?q=automation" class="example-link">?q=automation</a>
-                    </div>
-                    
-                    <div class="test-query">
-                        <strong>Mixed Queries:</strong> <a href="?q=naveen gulati founder" class="example-link">?q=naveen gulati founder</a> | 
-                        <a href="?q=24/7 support" class="example-link">?q=24/7 support</a> | 
-                        <a href="?q=data security" class="example-link">?q=data security</a>
-                    </div>
-                    
-                    <h2>For n8n Integration:</h2>
-                    <p>Use HTTP Request node with this URL structure:<br>
-                    <code>https://your-github-pages-url.github.io/knowledge-base.html?q={{$json["query"]}}</code></p>
-                    
-                    <h2>Response Format:</h2>
-                    <p>Returns up to 3 most relevant Q&A pairs with contact information, formatted as plain text for easy parsing.</p>
-                    
-                    <h2>Company Information:</h2>
-                    <p><strong>Open Mind Services Limited</strong><br>
-                    Founded: 2007 | Founders: Mr. Naveen Gulati (CEO) & Ms. Rakhi Gulati (COO)<br>
-                    Contact: connect@openmind.in | +91 9811331600<br>
-                    Address: B3-943, 9th Floor, Spaze IT-Tech Park, Sohna Road, Gurgaon</p>
-                </div>
-            `;
-        }
-    </script>
-</body>
-</html>
+// Execute search and return results
+const answer = searchFAQs(query);
+
+return { 
+    answer: answer,
+    query: query,
+    source: 'internal-knowledge-base',
+    totalMatches: answer.includes('Found') ? parseInt(answer.split('Found ')[1]?.split(' relevant')[0]) || 0 : 0,
+    optimized: true,
+    responseLength: answer.length
+};
